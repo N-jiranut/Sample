@@ -5,85 +5,62 @@ hands = mediapipe.solutions.hands.Hands()
 
 cap = cv2.VideoCapture(0)
 
-model = load_model("ML-model/6-15-2025-model01.h5")
-with open("ML-model/6-15-2025-label01.txt", "r") as f:
+model = load_model("ML-model/7-23/2025-test.h5")
+with open("ML-model/7-23/2025-test.txt", "r") as f:
     class_names = f.read().splitlines()
 
 while True:
-    ret, image = cap.read()
-    if not ret:
-        print("cant find camera")
-        break
-    img = cv2.flip(image, 1)    
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)   
-    results_pose = pose_pic.process(img)
-    results_hand = hands.process(img)
     row=[]
-    LeftHand=[]
-    RightHand = []
-    pose = []
-    if results_hand.multi_hand_landmarks:
-        for idx, hand_landmarks in enumerate(results_hand.multi_hand_landmarks):
-            handedness = results_hand.multi_handedness[idx].classification[0].label
-            for id, lm in enumerate(hand_landmarks.landmark):
-                if handedness:                        
-                    if handedness == "Left" and len(LeftHand) < 63:
-                        LeftHand.extend([lm.x,lm.y,lm.z])
-                    elif handedness == "Right" and len(RightHand) < 63:
-                        RightHand.extend([lm.x,lm.y,lm.z])
-    if len(LeftHand) == 0:
-        LeftHand=[0 for n in range(63)]     
-    if len(RightHand) == 0:
-        RightHand=[0 for n in range(63)]
+    landmark_location = []
+    point_show = []
+    black_screen = numpy.zeros((480, 480, 3), dtype=np.uint8)
+    ret, img = cap.read()
+    if not ret:
+        print("Cam not found.")
+        break
+    img = cv2.flip(img, 1)
+    img = cv2.cvtColor(img,cv2.COLOR_RGB2BGR)
+    hand_result = hands.process(img)
+        
+    if hand_result.multi_hand_landmarks:
+        for idx, hand_landmarks in enumerate(hand_result.multi_hand_landmarks):
+            handedness = hand_result.multi_handedness[idx].classification[0].label
+            if handedness == "Right":
+                for id, lm in enumerate(hand_landmarks.landmark): 
+                    x, y, z = lm.x, lm.y, lm.z
+                    if len(landmark_location)<21:
+                        landmark_location.append([x,y])     
+                        point_show.append([round(x*480),round(y*480)])           
+                        # mp.solutions.drawing_utils.draw_landmarks(black_screen,hand_landmarks,mp.solutions.hands.HAND_CONNECTIONS)
 
-    row.extend(LeftHand)
-    row.extend(RightHand)
-    
-    if results_pose.pose_landmarks:
-        landmarks = results_pose.pose_landmarks.landmark
-        for lm in landmarks:
-            pose.extend([lm.x, lm.y, lm.z])
-    if len(pose) == 0:
-        pose=[0 for n in range(99)]  
-    row.extend(pose)    
-    
-    if len(row) == 225:
+        orgX, orgY = point_show[9]     
+        offX = 240 - orgX
+        offY = 240 - orgY 
+            
+        for id in range(len(point_show)):
+            lmx, lmy = point_show[id] 
+            cv2.circle(black_screen, (lmx+offX,lmy+offY), 1, (0,0,255), 7)     
+            
+    if len(landmark_location)>0:   
+        for cor in landmark_location:
+            row.extend(cor)
+        cv2.imshow("Crop", black_screen) 
+
+    else:
+        row.append(0 for _ in range(21))
+      
+        
+    if len(row) > 0:
         landmarks_np = numpy.array(row).reshape(1, -1)
         pred = model.predict(landmarks_np)
         index = numpy.argmax(pred)
         label = class_names[index]
-        print("Prediction:", label, "Confidence:", pred[0][index])
-    
-    cv2.imshow("Cheese",img)
-    print(len(row))
+        print("Prediction:", label, "Confidence:", pred[0][index])   
+
+    cv2.imshow("Real", img)        
     key = cv2.waitKey(1)
     if key == ord("q"):
         break
-    time.sleep(.1)
 
 cap.release()
 cv2.destroyAllWindows()
-
-# import csv
-# with open("data/sss.csv") as file:
-#     row = csv.reader(file)
-#     row = list(row)
-    
-#     # print(row[0][-1])
-#     readed_list=[]
-#     readed_list.append(0)
-#     for n in row[0]:
-#         if n == 'ï»¿0':
-#             n = n[3:]
-        
-#         try:
-#             readed_list.append(int(n))
-#         except:
-#             readed_list.append(float(n))
-#     # print(type(readed_list))
-
-# landmarks_np = numpy.array(readed_list).reshape(1, -1)
-# pred = model.predict(landmarks_np)
-# index = numpy.argmax(pred)
-# label = class_names[index]
-# print("Prediction:", label, "Confidence:", pred[0][index])

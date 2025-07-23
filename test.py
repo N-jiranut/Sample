@@ -1,27 +1,6 @@
-import mediapipe as mp
-import cv2
-import numpy as np
-
-mp_holistic = mp.solutions.holistic.Holistic()
-cap = cv2.VideoCapture(0)
-
-def extract_keypoints(results):
-    # สกัดจุดสำคัญของท่าทางร่างกาย
-    pose = np.array([[res.x, res.y, res.z] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else np.zeros(33*3)
-    # สกัดจุดสำคัญของมือซ้าย (จากมุมมองกล้อง)
-    lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten() if results.left_hand_landmarks else np.zeros(21*3)
-    # สกัดจุดสำคัญของมือขวา (จากมุมมองกล้อง)
-    rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten() if results.right_hand_landmarks else np.zeros(21*3)
-    # รวมจุดสำคัญทั้งหมดเข้าด้วยกัน
-    return np.concatenate([pose, lh, rh])
-
-while True:
-    ret, img = cap.read()
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    results = mp_holistic.process(img)
-    keypoints = extract_keypoints(results)
-    print(keypoints)
-    key = cv2.waitKey(1)
-    cv2.imshow("pic",img)
-    if key == ord("q"):
-        break
+test_list = [[1,2],[3,4],[5,6]]
+dele1, dele2 = 1,2
+for id in range(len(test_list)):
+    x, y = test_list[id]
+    test_list[id]= (round((x-dele1)*100),round((y-dele2)*100))
+print(test_list)

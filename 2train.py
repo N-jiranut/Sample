@@ -5,11 +5,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
 
-date="6/17/2025"
+date="7/23/2025"
 name="test"
 
 # Load your CSV
-df = pd.read_csv("data/gpt_maindata_max.csv")
+df = pd.read_csv("data/main.csv")
 
 # Split features and labels
 X = df.iloc[:, :-1].values

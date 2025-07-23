@@ -11,11 +11,11 @@ mpdraw = mp.solutions.drawing_utils
 cap = cv2.VideoCapture(0)
 main = []
 
-def black_canvas(frame,classs,mode,round):
+def black_canvas(frame,classs,mode,rounded):
     for i in range(frame):
         row=[]
         landmark_location = []
-        test = []
+        point_show = []
         black_screen = np.zeros((480, 480, 3), dtype=np.uint8)
         ret, img = cap.read()
         if not ret:
@@ -31,29 +31,35 @@ def black_canvas(frame,classs,mode,round):
                     if handedness == "Right":
                         for id, lm in enumerate(hand_landmarks.landmark): 
                             x, y, z = lm.x, lm.y, lm.z
-                            if len(test)<21:
-                                test.append([x,y])                        
-                            mp.solutions.drawing_utils.draw_landmarks(black_screen,hand_landmarks,mp.solutions.hands.HAND_CONNECTIONS)
+                            if len(landmark_location)<21:
+                                landmark_location.append([x,y])     
+                                point_show.append([round(x*480),round(y*480)])           
+                            # mp.solutions.drawing_utils.draw_landmarks(black_screen,hand_landmarks,mp.solutions.hands.HAND_CONNECTIONS)
 
+            orgX, orgY = point_show[9]     
+            offX = 240 - orgX
+            offY = 240 - orgY 
+            
+            for id in range(len(point_show)):
+                lmx, lmy = point_show[id] 
+                cv2.circle(black_screen, (lmx+offX,lmy+offY), 1, (0,0,255), 7)     
+            
         if len(landmark_location)>0:   
             for cor in landmark_location:
                 row.extend(cor)
-            row.append(round)
+                # print(row)
+            row.append(rounded)
             main.append(row)
             cv2.imshow("Crop", black_screen) 
-            # if int(mode) == 0: 
-            #     cv2.imwrite(f"data/test/saved{round}.jpg",black_screen) 
-            # else:
-            #     cv2.imwrite(f"data/{classs}/saved{i}.jpg",black_screen)
 
         else:
             main.append(0 for _ in range(21))
-            main.append(round)
+            main.append(rounded)
         cv2.imshow("Real", img)        
         cv2.waitKey(1)
     # print(len(main))
-    # df = pd.DataFrame(main)
-    # df.to_csv("data/main.csv", mode='a', index=False, header=False) 
+    df = pd.DataFrame(main)
+    df.to_csv("data/main.csv", mode='a', index=False, header=False) 
 
 
 def wait():
@@ -77,10 +83,11 @@ def wait():
 
 for i in range(3):
     wait()
-    black_canvas(20, None, 0, i)
+    black_canvas(1, None, 0, i)
 
 # print(main)
-# print(len(main))
+print(len(main))
+
 df = pd.DataFrame(main)
 df.to_csv("data/main.csv", mode='w', index=False, header=False) 
 cv2.destroyAllWindows
