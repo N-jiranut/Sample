@@ -57,10 +57,6 @@ def black_canvas(frame,classs,mode,rounded):
             main.append(rounded)
         cv2.imshow("Real", img)        
         cv2.waitKey(1)
-    # print(len(main))
-    df = pd.DataFrame(main)
-    df.to_csv("data/main.csv", mode='a', index=False, header=False) 
-
 
 def wait():
     while True:
@@ -83,13 +79,13 @@ def wait():
 
 for i in range(3):
     wait()
-    black_canvas(1, None, 0, i)
+    black_canvas(5, None, 0, i)
 
 # print(main)
 print(len(main))
 
 df = pd.DataFrame(main)
-df.to_csv("data/main.csv", mode='w', index=False, header=False) 
+df.to_csv("data/main.csv", mode='w', index=False, header=True) 
 cv2.destroyAllWindows
 cap.release
 print('end')

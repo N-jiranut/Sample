@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
 
-date="7/23/2025"
+date="M7-23-2025"
 name="test"
 
 # Load your CSV

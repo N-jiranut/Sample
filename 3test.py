@@ -5,15 +5,15 @@ hands = mediapipe.solutions.hands.Hands()
 
 cap = cv2.VideoCapture(0)
 
-model = load_model("ML-model/7-23/2025-test.h5")
-with open("ML-model/7-23/2025-test.txt", "r") as f:
+model = load_model("ML-model/M7-23-2025-test.h5")
+with open("ML-model/M7-23-2025-test.txt", "r") as f:
     class_names = f.read().splitlines()
 
 while True:
     row=[]
     landmark_location = []
     point_show = []
-    black_screen = numpy.zeros((480, 480, 3), dtype=np.uint8)
+    black_screen = numpy.zeros((480, 480, 3), dtype=numpy.uint8)
     ret, img = cap.read()
     if not ret:
         print("Cam not found.")
@@ -32,14 +32,16 @@ while True:
                         landmark_location.append([x,y])     
                         point_show.append([round(x*480),round(y*480)])           
                         # mp.solutions.drawing_utils.draw_landmarks(black_screen,hand_landmarks,mp.solutions.hands.HAND_CONNECTIONS)
-
-        orgX, orgY = point_show[9]     
-        offX = 240 - orgX
-        offY = 240 - orgY 
-            
-        for id in range(len(point_show)):
-            lmx, lmy = point_show[id] 
-            cv2.circle(black_screen, (lmx+offX,lmy+offY), 1, (0,0,255), 7)     
+        try:
+            orgX, orgY = point_show[9]     
+            offX = 240 - orgX
+            offY = 240 - orgY 
+                
+            for id in range(len(point_show)):
+                lmx, lmy = point_show[id] 
+                cv2.circle(black_screen, (lmx+offX,lmy+offY), 1, (0,0,255), 7)     
+        except:
+            pass
             
     if len(landmark_location)>0:   
         for cor in landmark_location:
@@ -50,8 +52,11 @@ while True:
         row.append(0 for _ in range(21))
       
         
-    if len(row) > 0:
+    if len(row) > 5:
+        print("Working")
         landmarks_np = numpy.array(row).reshape(1, -1)
+        # landmarks_np = numpy.array(row)
+        # print(landmarks_np)
         pred = model.predict(landmarks_np)
         index = numpy.argmax(pred)
         label = class_names[index]
