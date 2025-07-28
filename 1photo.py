@@ -34,7 +34,6 @@ def black_canvas(frame,classs,mode,rounded):
                             if len(landmark_location)<21:
                                 landmark_location.append([x,y])     
                                 point_show.append([round(x*480),round(y*480)])           
-                            # mp.solutions.drawing_utils.draw_landmarks(black_screen,hand_landmarks,mp.solutions.hands.HAND_CONNECTIONS)
 
             orgX, orgY = point_show[9]     
             offX = 240 - orgX
@@ -47,7 +46,7 @@ def black_canvas(frame,classs,mode,rounded):
         if len(landmark_location)>0:   
             for cor in landmark_location:
                 row.extend(cor)
-                # print(row)
+
             row.append(rounded)
             main.append(row)
             cv2.imshow("Crop", black_screen) 
@@ -57,6 +56,7 @@ def black_canvas(frame,classs,mode,rounded):
             main.append(rounded)
         cv2.imshow("Real", img)        
         cv2.waitKey(1)
+        # print(row)
 
 def wait():
     while True:
@@ -77,7 +77,7 @@ def wait():
 #     wait()
 #     black_canvas(10, types, 1, 1)
 
-for i in range(3):
+for i in range(5):
     wait()
     black_canvas(5, None, 0, i)
 
@@ -85,7 +85,7 @@ for i in range(3):
 print(len(main))
 
 df = pd.DataFrame(main)
-df.to_csv("data/main.csv", mode='w', index=False, header=True) 
+df.to_csv("data/Hard_hand.csv", mode='w', index=False, header=True) 
 cv2.destroyAllWindows
 cap.release
 print('end')

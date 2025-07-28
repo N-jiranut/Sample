@@ -5,8 +5,10 @@ hands = mediapipe.solutions.hands.Hands()
 
 cap = cv2.VideoCapture(0)
 
-model = load_model("ML-model/M7-23-2025-test.h5")
-with open("ML-model/M7-23-2025-test.txt", "r") as f:
+name = "M7-27-2025-HH1001"
+
+model = load_model(f"ML-model/{name}/model.h5")
+with open(f"ML-model/{name}/text.txt", "r") as f:
     class_names = f.read().splitlines()
 
 while True:
@@ -57,6 +59,7 @@ while True:
         landmarks_np = numpy.array(row).reshape(1, -1)
         # landmarks_np = numpy.array(row)
         # print(landmarks_np)
+        # print(row)
         pred = model.predict(landmarks_np)
         index = numpy.argmax(pred)
         label = class_names[index]

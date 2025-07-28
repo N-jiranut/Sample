@@ -5,11 +5,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
 
-date="M7-23-2025"
-name="test"
+date="M7-28-2025"
+name="full_body1"
 
 # Load your CSV
-df = pd.read_csv("data/main.csv")
+df = pd.read_csv("data/full_body.csv")
 
 # Split features and labels
 X = df.iloc[:, :-1].values
@@ -29,7 +29,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 
 early_stop = EarlyStopping(
     monitor='val_loss',
-    patience=3,
+    patience=10,
     restore_best_weights=True
 )
     # Dropout(0.3),
@@ -43,12 +43,12 @@ model = Sequential([
 
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-history = model.fit(X_train, y_train, epochs=100, batch_size=32, validation_data=(X_test, y_test), callbacks=[early_stop])
+history = model.fit(X_train, y_train, epochs=2000, batch_size=8, validation_data=(X_test, y_test), callbacks=[early_stop])
 # , callbacks=[early_stop]
 
-model.save(f"ML-model/{date}-{name}.h5")
+model.save(f"ML-model/{date}-{name}/model.h5")
 
-with open(f"ML-model/{date}-{name}.txt", "w") as f:
+with open(f"ML-model/{date}-{name}/text.txt", "w") as f:
     for label in le.classes_:
         f.write(str(label) + "\n")
 

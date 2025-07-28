@@ -4,8 +4,10 @@ import mediapipe as mp
 import pandas as pd
 
 type = ["one", "two", "three", "four", "five"]
+pose_take = [0,11,12,13,14,15,16]
 
 hands = mp.solutions.hands.Hands()
+pose = mp.solutions.pose.Pose()
 mpdraw = mp.solutions.drawing_utils
 
 cap = cv2.VideoCapture(0)
@@ -38,6 +40,7 @@ def black_canvas(frame,classs,mode,rounded):
     for i in range(frame):
         LH=[]
         RH=[]
+        # pose=[]
         row=[]
         landmark_location = []
         ret, img = cap.read()
@@ -47,18 +50,15 @@ def black_canvas(frame,classs,mode,rounded):
         img = cv2.flip(img, 1)
         img = cv2.cvtColor(img,cv2.COLOR_RGB2BGR)
         hand_result = hands.process(img)
+        pose_results = pose.process(img)
         
         if hand_result.multi_hand_landmarks:
             for idx, hand_landmarks in enumerate(hand_result.multi_hand_landmarks):
                 point_show = []
                 handedness = hand_result.multi_handedness[idx].classification[0].label
-                # print(handedness)
-                    
                 for id, lm in enumerate(hand_landmarks.landmark): 
-                    x, y, z = lm.x, lm.y, lm.z
-                    if len(landmark_location)<42:
-                        # landmark_location.extend([x,y])     
-                        point_show.append([round(x*480),round(y*480)])           
+                    x, y, z = lm.x, lm.y, lm.z     
+                    point_show.append([round(x*480),round(y*480)])           
                     if handedness == "Left":
                         LH.extend([x,y])
                     if handedness == "Right":
@@ -75,7 +75,17 @@ def black_canvas(frame,classs,mode,rounded):
         if len(RH) <= 0:
             RH = [0 for _ in range(42)]
         row.extend(RH)
-
+        
+        if pose_results.pose_landmarks:
+            landmarks = pose_results.pose_landmarks.landmark
+            for id,lm in enumerate(landmarks):
+                x, y = lm.x, lm.y
+                if id in pose_take:
+                    cv2.circle(img ,(round(x*600),round(y*480)), 1, (0,0,255), 7)
+                    row.extend([x, y])    
+        else:
+            row.extend([0 for _ in range(14)])
+        
         row.append(rounded)
         
         # print(len(row))
@@ -112,15 +122,16 @@ def wait(sec):
 #     wait()
 #     black_canvas(10, types, 1, 1)
 
-for i in range(3):
-    wait(3)
+for i in range(4):
+    wait(4)
     black_canvas(5, None, 0, i)
 
 # print(main)
+
 # print(len(main))
 
 df = pd.DataFrame(main)
-df.to_csv("data/Left_Right.csv", mode='w', index=False, header=False) 
+df.to_csv("data/full_body.csv", mode='w', index=False, header=False) 
 cv2.destroyAllWindows
 cap.release
 print('end')
