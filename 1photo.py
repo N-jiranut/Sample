@@ -22,7 +22,7 @@ def black_canvas(frame,classs,mode,rounded):
             print("Cam not found.")
             break
         img = cv2.flip(img, 1)
-        img = cv2.cvtColor(img,cv2.COLOR_RGB2BGR)
+        # img = cv2.cvtColor(img,cv2.COLOR_RGB2BGR)
         hand_result = hands.process(img)
         
         if hand_result.multi_hand_landmarks:
@@ -77,7 +77,7 @@ def wait():
 #     wait()
 #     black_canvas(10, types, 1, 1)
 
-for i in range(5):
+for i in type:
     wait()
     black_canvas(5, None, 0, i)
 
@@ -85,7 +85,7 @@ for i in range(5):
 print(len(main))
 
 df = pd.DataFrame(main)
-df.to_csv("data/Hard_hand.csv", mode='w', index=False, header=True) 
+df.to_csv("data/testing.csv", mode='w', index=False, header=True) 
 cv2.destroyAllWindows
 cap.release
 print('end')

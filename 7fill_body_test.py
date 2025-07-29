@@ -4,7 +4,7 @@ import mediapipe as mp
 import pandas as pd
 from tensorflow.keras.models import load_model
 
-name = "M7-28-2025-full_body1"
+name = "M7-29-2025-main0"
 
 model = load_model(f"ML-model/{name}/model.h5")
 with open(f"ML-model/{name}/text.txt", "r") as f:

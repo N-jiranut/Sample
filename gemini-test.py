@@ -1,128 +1,98 @@
-import cv2
-import mediapipe as mp
-import numpy as np
+import xml.etree.ElementTree as ET
 import os
-
-mp_holistic = mp.solutions.holistic # สำหรับท่าทางร่างกายและมือ
-mp_drawing = mp.solutions.drawing_utils # สำหรับวาดจุดลงบนภาพ
-
-def extract_keypoints(results):
-    # สกัดจุดสำคัญของท่าทางร่างกาย
-    pose = np.array([[res.x, res.y, res.z] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else np.zeros(33*3)
-    # สกัดจุดสำคัญของมือซ้าย (จากมุมมองกล้อง)
-    lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten() if results.left_hand_landmarks else np.zeros(21*3)
-    # สกัดจุดสำคัญของมือขวา (จากมุมมองกล้อง)
-    rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten() if results.right_hand_landmarks else np.zeros(21*3)
-    # รวมจุดสำคัญทั้งหมดเข้าด้วยกัน
-    return np.concatenate([pose, lh, rh])
-
-# Path ของวิดีโอ
-DATA_PATH = os.path.join('data') 
-actions = np.array(['hello', 'thankyou']) # คำศัพท์ของเรา
-
-# จำนวนเฟรมที่จะใช้ในแต่ละท่าทาง (ลำดับเวลา)
-no_sequences = 30 # จำนวนตัวอย่างวิดีโอสำหรับแต่ละท่าทาง
-sequence_length = 30 # จำนวนเฟรมในแต่ละลำดับ (30 เฟรม = 1 วินาที ที่ 30 fps)
-
-for action in actions:
-    for sequence in range(no_sequences):
-        try:
-            os.makedirs(os.path.join(DATA_PATH, action, str(sequence)))
-        except:
-            pass
-
-# วนลูปเพื่อประมวลผลวิดีโอ
-for action in actions:
-    print(1)
-    for sequence in range(no_sequences):
-        print(2)
-        video_path = os.path.join(DATA_PATH, action, f'{action}_{sequence+1:03d}.mp4') # สมมติชื่อไฟล์ตามตัวอย่างด้านบน
-
-        cap = cv2.VideoCapture(0)
-        # cap = cv2.VideoCapture(video_path)
-        with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
-            
-            frame_num = 0
-            while cap.isOpened() and frame_num < sequence_length: # จำกัดจำนวนเฟรมที่ประมวลผลต่อวิดีโอ
-                ret, frame = cap.read()
-                if not ret:
-                    break
-                
-                # ทำการตรวจจับจุดสำคัญ
-                image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                results = holistic.process(image)
-                
-                # สกัดและบันทึกจุดสำคัญ
-                keypoints = extract_keypoints(results)
-                npy_path = os.path.join(DATA_PATH, action, str(sequence), str(frame_num))
-                np.save(npy_path, keypoints)
-                
-                frame_num += 1
-                
-            cap.release()
-
-print("Keypoint extraction complete!")
-
+import cv2
+import numpy as np
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.preprocessing.image import ImageDataGenerator # Or PyTorch equivalent
 
-# สร้าง array สำหรับเก็บข้อมูลทั้งหมด
-sequences, labels = [], []
-for action in actions:
-    for sequence in range(no_sequences):
-        window = []
-        for frame_num in range(sequence_length):
-            res = np.load(os.path.join(DATA_PATH, action, str(sequence), f"{frame_num}.npy"))
-            window.append(res)
-        sequences.append(window)
-        labels.append(actions.index(action)) # เปลี่ยนชื่อคำศัพท์เป็นตัวเลข (0 สำหรับ hello, 1 สำหรับ thankyou)
+# Function to parse Pascal VOC XML (example)
+def parse_pascal_voc_xml(xml_file):
+    tree = ET.parse(xml_file)
+    root = tree.getroot()
 
-X = np.array(sequences) # Input data (ลำดับของ keypoints)
-y = to_categorical(labels).astype(int) # Output data (one-hot encoded labels)
+    boxes = []
+    labels = []
+    image_width = int(root.find('size/width').text)
+    image_height = int(root.find('size/height').text)
 
-# แบ่งข้อมูล
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=42) # 15% สำหรับ test
-X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.176, random_state=42) # 15% ของที่เหลือ (ประมาณ 15% ของข้อมูลทั้งหมด)
+    for obj in root.findall('object'):
+        name = obj.find('name').text
+        bbox = obj.find('bndbox')
+        xmin = int(bbox.find('xmin').text)
+        ymin = int(bbox.find('ymin').text)
+        xmax = int(bbox.find('xmax').text)
+        ymax = int(bbox.find('ymax').text)
+        boxes.append([xmin, ymin, xmax, ymax])
+        labels.append(name)
+    return {'boxes': boxes, 'labels': labels, 'width': image_width, 'height': image_height}
 
-print(f"X_train shape: {X_train.shape}") # (จำนวนตัวอย่าง, sequence_length, จำนวน keypoints)
-print(f"X_val shape: {X_val.shape}")
-print(f"X_test shape: {X_test.shape}")
+# Example of loading and parsing (adjust paths as needed)
+dataset_root = 'One-Stage-TFS Thai One-Stage Fingerspelling Dataset'
+image_dir = os.path.join(dataset_root, 'Training') # Adjust based on actual folder structure
+# annotation_dir = os.path.join(dataset_root, 'annotations') # Adjust based on actual folder structure
 
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Dropout
-from tensorflow.keras.callbacks import TensorBoard
+all_image_paths = []
+all_annotation_paths = []
+for split_folder in ['train', 'test', 'unseen']: # Or however the dataset is split
+    img_folder = os.path.join(image_dir, split_folder)
+    anno_folder = os.path.join(annotation_dir, split_folder)
+    if os.path.exists(img_folder):
+        for img_name in os.listdir(img_folder):
+            if img_name.endswith('.jpg'):
+                all_image_paths.append(os.path.join(img_folder, img_name))
+                xml_name = img_name.replace('.jpg', '.xml')
+                all_annotation_paths.append(os.path.join(anno_folder, xml_name))
 
-log_dir = os.path.join('Logs')
-tb_callback = TensorBoard(log_dir=log_dir)
+print(f"Found {len(all_image_paths)} images and annotations.")
 
-# จำนวนคลาสของเรา (hello, thankyou)
-num_classes = len(actions) 
-# ขนาดของ Input (sequence_length, จำนวน keypoints)
-input_shape = (sequence_length, X.shape[2])
+# You would then typically load images and apply the parsing
+# For a full system, you'd create a custom dataset loader that handles this for batches.
 
-model = Sequential()
-model.add(LSTM(64, return_sequences=True, activation='relu', input_shape=input_shape))
-model.add(Dropout(0.2)) # เพิ่ม Dropout เพื่อป้องกัน Overfitting
-model.add(LSTM(128, return_sequences=True, activation='relu'))
-model.add(Dropout(0.2))
-model.add(LSTM(64, return_sequences=False, activation='relu')) # return_sequences=False สำหรับ layer สุดท้ายก่อน Dense
-model.add(Dense(64, activation='relu'))
-model.add(Dropout(0.2))
-model.add(Dense(num_classes, activation='softmax')) # Output layer: ใช้ softmax สำหรับการจำแนกหลายคลาส
+# Example for cropping hands (assuming you have hand_bbox and original_image)
+# This would typically happen after your detection model predicts boxes
 
-model.compile(optimizer='Adam', loss='categorical_crossentropy', metrics=['categorical_accuracy'])
+# def crop_hand(image, bbox):
+#     xmin, ymin, xmax, ymax = bbox
+#     cropped_hand = image[ymin:ymax, xmin:xmax]
+#     return cv2.resize(cropped_hand, (desired_width, desired_height))
+
+# Data augmentation setup (Keras example for classification)
+# train_datagen = ImageDataGenerator(
+#     rescale=1./255,
+#     rotation_range=10,
+#     width_shift_range=0.1,
+#     height_shift_range=0.1,
+#     shear_range=0.1,
+#     zoom_range=0.1,
+#     horizontal_flip=False, # Fingerspelling might be asymmetric, so be careful with horizontal flip
+#     fill_mode='nearest'
+# )
+# val_datagen = ImageDataGenerator(rescale=1./255)
+
+from tensorflow.keras.applications import MobileNetV2 # Example
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
+
+num_classes = 15 # For 15 Thai one-stage consonants
+
+# Load MobileNetV2 pre-trained on ImageNet, excluding the top (classification) layer
+base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+
+# Freeze the base model layers (optional, unfreeze later for fine-tuning)
+for layer in base_model.layers:
+    layer.trainable = False
+
+# Add custom classification layers
+x = base_model.output
+x = GlobalAveragePooling2D()(x) # Reduces spatial dimensions
+x = Dense(1024, activation='relu')(x)
+predictions = Dense(num_classes, activation='softmax')(x) # Output layer for 15 classes
+
+model = Model(inputs=base_model.input, outputs=predictions)
+
+model.compile(optimizer=Adam(learning_rate=0.0001),
+              loss='categorical_crossentropy', # For one-hot encoded labels
+              metrics=['accuracy'])
 
 model.summary()
-
-# เริ่มการฝึก
-history = model.fit(
-    X_train, y_train, 
-    epochs=200, # จำนวน Epochs
-    batch_size=32, # Batch Size
-    validation_data=(X_val, y_val), 
-    callbacks=[tb_callback]
-)
-
-# บันทึกโมเดลหลังจากฝึกเสร็จ
-model.save('sign_language_model.h5')
-print("Model saved as sign_language_model.h5")

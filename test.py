@@ -1,40 +1,87 @@
-import cv2
-import numpy as np
+import os
 
-cap = cv2.VideoCapture(0)
+def list_folder_contents(folder_path):
+    """
+    ตรวจสอบและแสดงรายการไฟล์และโฟลเดอร์ย่อยทั้งหมดภายในโฟลเดอร์ที่ระบุ
+    """
+    print(f"--- ตรวจสอบเนื้อหาภายในโฟลเดอร์: {folder_path} ---")
+    try:
+        # ตรวจสอบว่า path ที่ให้มาเป็นโฟลเดอร์จริงหรือไม่
+        if not os.path.isdir(folder_path):
+            print(f"ข้อผิดพลาด: '{folder_path}' ไม่ใช่โฟลเดอร์ หรือไม่พบโฟลเดอร์นี้")
+            return
 
-# Create a dummy image
-img = np.zeros((480, 640, 3), dtype=np.uint8) # Height=480, Width=640
-ret, imgs = cap.read()
+        # ใช้ os.listdir() เพื่อรับรายชื่อไฟล์และโฟลเดอร์ย่อยทั้งหมด
+        contents = os.listdir(folder_path)
 
-window_name = "My OpenCV Window"
+        if not contents:
+            print("โฟลเดอร์นี้ว่างเปล่า")
+            return
 
-# Create a named window (optional, but good practice for more control)
-cv2.namedWindow(window_name, cv2.WINDOW_NORMAL) # WINDOW_NORMAL allows resizing
+        files = []
+        subfolders = []
 
-# Display the image
-cv2.imshow("window_name", imgs)
+        # แยกไฟล์และโฟลเดอร์ย่อยออกจากกัน
+        for item in contents:
+            item_path = os.path.join(folder_path, item) # สร้าง full path ของแต่ละรายการ
+            if os.path.isfile(item_path):
+                files.append(item)
+            elif os.path.isdir(item_path):
+                subfolders.append(item)
 
-# It's important to call waitKey() at least once for the window to render
-# and for its properties to be accessible.
-cv2.waitKey(1) 
+        print(f"จำนวนรายการทั้งหมดในโฟลเดอร์: {len(contents)}")
 
-# Get the window properties
-# You need to query specific properties like width and height.
-# In newer OpenCV versions (3.4.1+), you can use cv2.getWindowImageRect()
-# to get a tuple of (x, y, width, height) of the image within the window.
-# This is often what people mean by "screen size in cv2.imshow".
+        if subfolders:
+            print(f"\n--- โฟลเดอร์ย่อย ({len(subfolders)}): ---")
+            for sf in subfolders:
+                print(f"  [DIR] {sf}")
+        else:
+            print("\nไม่มีโฟลเดอร์ย่อยในโฟลเดอร์นี้")
 
-x, y, width, height = cv2.getWindowImageRect(window_name)
+        if files:
+            print(f"\n--- ไฟล์ ({len(files)}): ---")
+            for f in files:
+                print(f"  [FILE] {f}")
+        else:
+            print("\nไม่มีไฟล์ในโฟลเดอร์นี้")
 
-print(f"Window name: {window_name}")
-print(f"Image within window dimensions: Width={width}, Height={height}")
+    except FileNotFoundError:
+        print(f"ข้อผิดพลาด: ไม่พบโฟลเดอร์ที่ {folder_path}")
+    except PermissionError:
+        print(f"ข้อผิดพลาด: ไม่มีสิทธิ์เข้าถึงโฟลเดอร์ {folder_path}")
+    except Exception as e:
+        print(f"เกิดข้อผิดพลาดในการอ่านโฟลเดอร์: {e}")
 
-# You can also get other properties using cv2.getWindowProperty()
-# For example, to check if the window is visible:
-is_visible = cv2.getWindowProperty(window_name, cv2.WND_PROP_VISIBLE)
-print(f"Is window visible? {bool(is_visible)}")
+# --- ตัวอย่างการใช้งาน ---
 
-# Wait for a key press and then close the window
-cv2.waitKey(0) 
-cv2.destroyAllWindows()
+# 1. สร้างโครงสร้างโฟลเดอร์และไฟล์จำลองเพื่อทดสอบ (ไม่จำเป็นต้องรันในโปรดักชัน)
+# คุณสามารถสร้างด้วยมือ หรือใช้โค้ดนี้สร้างให้
+# if not os.path.exists("my_test_folder"):
+#     os.makedirs("my_test_folder/sub_dir_a")
+#     os.makedirs("my_test_folder/sub_dir_b")
+#     with open("my_test_folder/file1.txt", "w") as f:
+#         f.write("This is file1.")
+#     with open("my_test_folder/sub_dir_a/nested_file.csv", "w") as f:
+#         f.write("col1,col2\n1,2")
+#     print("สร้างโครงสร้างโฟลเดอร์ทดสอบ 'my_test_folder' เรียบร้อยแล้ว")
+#     print("-" * 50)
+
+
+# ตัวอย่างที่ 1: ตรวจสอบโฟลเดอร์ที่มีอยู่จริง (เปลี่ยนเป็น path ของคุณ)
+# เช่น list_folder_contents("/Users/YourName/Documents/MyProject")
+# list_folder_contents("my_test_folder")
+
+# print("\n" + "=" * 50 + "\n")
+
+# # ตัวอย่างที่ 2: ตรวจสอบโฟลเดอร์ย่อย
+list_folder_contents("my_test_folder/sub_dir_b")
+
+# print("\n" + "=" * 50 + "\n")
+
+# # ตัวอย่างที่ 3: ตรวจสอบโฟลเดอร์ที่ไม่มีอยู่
+# list_folder_contents("non_existent_folder")
+
+# print("\n" + "=" * 50 + "\n")
+
+# # ตัวอย่างที่ 4: ตรวจสอบ path ที่เป็นไฟล์แทนที่จะเป็นโฟลเดอร์
+# list_folder_contents("my_test_folder/file1.txt")

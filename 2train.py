@@ -5,11 +5,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
 
-date="M7-28-2025"
-name="full_body1"
+date="M7-29-2025"
+name="main0"
 
 # Load your CSV
-df = pd.read_csv("data/full_body.csv")
+df = pd.read_csv("data/OMG.csv")
 
 # Split features and labels
 X = df.iloc[:, :-1].values
@@ -29,7 +29,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 
 early_stop = EarlyStopping(
     monitor='val_loss',
-    patience=10,
+    patience=30,
     restore_best_weights=True
 )
     # Dropout(0.3),
@@ -43,7 +43,7 @@ model = Sequential([
 
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-history = model.fit(X_train, y_train, epochs=2000, batch_size=8, validation_data=(X_test, y_test), callbacks=[early_stop])
+history = model.fit(X_train, y_train, epochs=2000, batch_size=16, validation_data=(X_test, y_test), callbacks=[early_stop])
 # , callbacks=[early_stop]
 
 model.save(f"ML-model/{date}-{name}/model.h5")
