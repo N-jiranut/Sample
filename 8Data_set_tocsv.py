@@ -47,14 +47,12 @@ def black_canvas(image,rounded):
             point_show = []
             handedness = hand_result.multi_handedness[idx].classification[0].label
             for id, lm in enumerate(hand_landmarks.landmark): 
-                x, y, = lm.x, lm.y    
+                x, y= lm.x, lm.y
                 point_show.append([round(x*480),round(y*480)])           
                 if handedness == "Left" and len(LH)<42:
                     LH.extend([x,y])
-                    # LH.extend(["L","L"])
                 if handedness == "Right" and len(RH)<42:
                     RH.extend([x,y])
-                    # RH.extend(["R","R"])
             if handedness == "Left":
                 show_left(point_show)
             if handedness == "Right":              
@@ -62,11 +60,9 @@ def black_canvas(image,rounded):
             
     if len(LH) <= 0:
         LH = [0 for _ in range(42)]
-        # LH = ["SL" for _ in range(42)]
     row.extend(LH)
     if len(RH) <= 0:
         RH = [0 for _ in range(42)]
-        # RH = ["SR" for _ in range(42)]
     row.extend(RH)
     
     if pose_results.pose_landmarks:
@@ -76,7 +72,6 @@ def black_canvas(image,rounded):
             if id in pose_take:
                 cv2.circle(img ,(round(x*600),round(y*480)), 1, (0,0,255), 7)
                 row.extend([x, y])    
-                # row.extend(["B", "B"])    
     else:
         row.extend([0 for _ in range(14)])
     
@@ -98,18 +93,14 @@ for item in onesf:
         for iitem in secoundsf:
             iitem_path = os.path.join(item_path, iitem, "Images (JPEG)")
             thirdsf = os.listdir(iitem_path)
-            # sss = 0
             for picture in thirdsf:
                 picture_path = os.path.join(iitem_path, picture)
                 try:
                     black_canvas(picture_path, iitem)
                 except:
                     pass
-                # if sss == 10:
-                #     break
-                # sss+=1
 
-df = pd.DataFrame(main)
-df.to_csv("data/OMG.csv", mode='w', index=False, header=False) 
+# df = pd.DataFrame(main)
+# df.to_csv("data/OMG.csv", mode='w', index=False, header=False) 
 cv2.destroyAllWindows
 print('end')
