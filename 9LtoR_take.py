@@ -1,17 +1,15 @@
-import cv2, time
-import numpy as np
+import os, cv2, time
 import mediapipe as mp
 import pandas as pd
-
-type = ["one", "two", "three", "four", "five"]
-pose_take = [0,11,12,13,14,15,16]
-
+import numpy as np
 hands = mp.solutions.hands.Hands()
 pose = mp.solutions.pose.Pose()
-mpdraw = mp.solutions.drawing_utils
 
 cap = cv2.VideoCapture(0)
+data = []
 main = []
+pose_take = [0,11,12,13,14,15,16]
+data_log = ["LTR","RTL"]
 
 def show_left(location):
     black_screenL = np.zeros((480, 480, 3), dtype=np.uint8)
@@ -35,18 +33,28 @@ def show_right(location):
         lmx, lmy = location[id] 
         cv2.circle(black_screenR ,(lmx+offX,lmy+offY), 1, (0,0,255), 7)  
     cv2.imshow("CropR", black_screenR) 
-
-def black_canvas(frame,classs,mode,rounded):
-    for i in range(frame):
+def wait():
+    while True:
+        ret, img = cap.read()
+        img = cv2.flip(img, 1)
+        img = cv2.cvtColor(img,cv2.COLOR_RGB2BGR)
+        hand_result = hands.process(img)
+        
+        if hand_result.multi_hand_landmarks:
+            for idx, hand_landmarks in enumerate(hand_result.multi_hand_landmarks):
+                mp.solutions.drawing_utils.draw_landmarks(img,hand_landmarks,mp.solutions.hands.HAND_CONNECTIONS)
+                
+        cv2.imshow("test", img)
+        if cv2.waitKey(1) == ord("q"):
+            break
+        
+def black_canvas(ranged,rounded):
+    for frame in range(ranged):
+        print(f"{frame+1}/{ranged}")
         LH=[]
         RH=[]
-        # pose=[]
         row=[]
-        landmark_location = []
         ret, img = cap.read()
-        if not ret:
-            print("Cam not found.")
-            break
         img = cv2.flip(img, 1)
         img = cv2.cvtColor(img,cv2.COLOR_RGB2BGR)
         hand_result = hands.process(img)
@@ -57,13 +65,12 @@ def black_canvas(frame,classs,mode,rounded):
                 point_show = []
                 handedness = hand_result.multi_handedness[idx].classification[0].label
                 for id, lm in enumerate(hand_landmarks.landmark): 
-                    x, y, z = lm.x, lm.y, lm.z     
+                    x, y= lm.x, lm.y
                     point_show.append([round(x*480),round(y*480)])           
-                    if handedness == "Left":
+                    if handedness == "Left" and len(LH)<42:
                         LH.extend([x,y])
-                    if handedness == "Right":
+                    if handedness == "Right" and len(RH)<42:
                         RH.extend([x,y])
-
                 if handedness == "Left":
                     show_left(point_show)
                 if handedness == "Right":              
@@ -91,45 +98,31 @@ def black_canvas(frame,classs,mode,rounded):
         main.append(row)    
         
         cv2.imshow("Real", img)        
-        key = cv2.waitKey(1)
-        if key == ord("q"):
-            break
+        cv2.waitKey(1)
 
-def wait(sec):
-    count = 0
-    ended=sec*15
-    while True:
-        print(f"{count}/{ended}")
-        if count>=ended:
-            break
-        ret, img = cap.read()
-        img = cv2.flip(img, 1)
-        img = cv2.cvtColor(img,cv2.COLOR_RGB2BGR)
-        hand_result = hands.process(img)
-        
-        if hand_result.multi_hand_landmarks:
-            for idx, hand_landmarks in enumerate(hand_result.multi_hand_landmarks):
-                mp.solutions.drawing_utils.draw_landmarks(img,hand_landmarks,mp.solutions.hands.HAND_CONNECTIONS)
-                
-        cv2.imshow("test", img)
-        if cv2.waitKey(1) == ord("q"):
-            break
-        count+=1
+path = "One-Stage-TFS Thai One-Stage Fingerspelling Dataset"
 
-# for types in type:
-#     wait()
-#     black_canvas(10, types, 1, 1)
+onesf = os.listdir(path)
 
-for i in range(4):
-    wait(4)
-    black_canvas(5, None, 0, i)
+# for item in onesf:
+#     if item == "Training set":
+#         item_path = os.path.join(path, item)
+#         secoundsf = os.listdir(item_path)
+#         for iitem in secoundsf:
+#             iitem_path = os.path.join(item_path, iitem, "Images (JPEG)")
+#             thirdsf = os.listdir(iitem_path)
+#             for picture in thirdsf:
+#                 picture_path = os.path.join(iitem_path, picture)
+#                 try:
+#                     black_canvas(picture_path, iitem)
+#                 except:
+#                     pass
 
-# print(main)
-
-# print(len(main))
+for classes in data_log:
+    wait()
+    black_canvas(70, classes)
 
 df = pd.DataFrame(main)
-df.to_csv("data/full_body.csv", mode='w', index=False, header=False) 
+df.to_csv("data/LRmove.csv", mode='w', index=False, header=False) 
 cv2.destroyAllWindows
-cap.release
 print('end')
