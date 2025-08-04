@@ -1,15 +1,10 @@
-# import cv2
+import cv2
+import numpy as np
 
-# path = "One-Stage-TFS Thai One-Stage Fingerspelling Dataset/Training set/BOR_BAI_MAI/Images (JPEG)/BOR_BAI_MAI_2.jpg"
+screen = np.zeros((480, 480, 3), dtype=np.uint8)
 
-# pic = cv2.imread(path)
+cv2.rectangle(screen, (0,480), (10,470),(50,150,0), 2)
 
-# cv2.imshow("test", pic)
+cv2.imshow("test",screen)
 
-# cv2.waitKey(0)
-import os 
-
-mp = "test_folder/pic"
-
-test = os.listdir(mp)
-print(test)
+cv2.waitKey(0)

@@ -2,36 +2,21 @@ import cv2, time
 import mediapipe as mp
 import pandas as pd
 import numpy as np
+from tensorflow.keras.models import load_model
 hands = mp.solutions.hands.Hands()
 
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 600)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480) 
 main = []
-classes = ["LTR","RTL"]
 
-def wait(sec):
-    count = 0
-    ended=sec*15
-    while True:
-        print(f"{count}/{ended}")
-        if count>=ended:
-            break
-        ret, img = cap.read()
-        img = cv2.flip(img, 1)
-        img = cv2.cvtColor(img,cv2.COLOR_RGB2BGR)
-        hand_result = hands.process(img)
-        
-        if hand_result.multi_hand_landmarks:
-            for idx, hand_landmarks in enumerate(hand_result.multi_hand_landmarks):
-                mp.solutions.drawing_utils.draw_landmarks(img,hand_landmarks,mp.solutions.hands.HAND_CONNECTIONS)
-                
-        cv2.imshow("test", img)
-        if cv2.waitKey(1) == ord("q"):
-            break
-        count+=1
+name = "M8-4-2025-LRmove"
 
-def wait1():
+model = load_model(f"ML-model/{name}/model.h5")
+with open(f"ML-model/{name}/text.txt", "r") as f:
+    class_names = f.read().splitlines()
+
+def wait():
     while True:
         ret, img = cap.read()
         img = cv2.flip(img, 1)
@@ -45,12 +30,11 @@ def wait1():
         cv2.imshow("test", img)
         if cv2.waitKey(1) == ord("q"):
             break
-        
-def black_canvas(mrow,FPS,typed):
-    print(f"Now collecting {typed}")
-    for _ in range(mrow):
-        wait1()
+
+def black_canvas(FPS):
+    while True:
         row=[]
+        wait()
         for frame in range(FPS):
             print(f"{frame+1}/{FPS}")
             LH=[]
@@ -80,7 +64,6 @@ def black_canvas(mrow,FPS,typed):
                                 LYM=NY
                             elif NY<LYL:
                                 LYL=NY
-                            # LH.extend([x,y])
                         if handedness == "Right" and len(RH)<42:
                             DR=True
                             NX = round(x*600)
@@ -101,9 +84,6 @@ def black_canvas(mrow,FPS,typed):
                 if DL:
                     cv2.rectangle(img, (LXL,LYL), (LXM,LYM),(50,150,0), 2)
 
-            # if len(LH) <= 0:
-            #     LH = [0 for _ in range(42)]
-            # row.extend(LH)
             if len(RH) <= 0:
                 RH = [0 for _ in range(42)]
             row.extend(RH)   
@@ -113,13 +93,13 @@ def black_canvas(mrow,FPS,typed):
             if key == ord("q"):
                 break
 
-        row.append(typed)
-        main.append(row)
+        landmarks_np = np.array(row).reshape(1, -1)
+        pred = model.predict(landmarks_np)
+        index = np.argmax(pred)
+        label = class_names[index]
+        print("Prediction:", label, "Confidence:", pred[0][index])   
 
-for classd in classes:
-    black_canvas(5,10,classd)
+black_canvas(10)
 
-df = pd.DataFrame(main)
-df.to_csv("data/LRmove.csv", mode='w', index=False, header=False) 
 cv2.destroyAllWindows
 print('end')

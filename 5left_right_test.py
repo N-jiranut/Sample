@@ -6,7 +6,7 @@ hands = mediapipe.solutions.hands.Hands()
 
 cap = cv2.VideoCapture(0)
     
-name = "M7-27-2025-L-R"
+name = "M8-1-2025-LRmove"
 
 model = load_model(f"ML-model/{name}/model.h5")
 with open(f"ML-model/{name}/text.txt", "r") as f:
@@ -62,9 +62,9 @@ while True:
                 if len(landmark_location)<42:
                     # landmark_location.extend([x,y])     
                     point_show.append([round(x*480),round(y*480)])           
-                if handedness == "Left":
+                if handedness == "Left" and len(LH)<42:
                     LH.extend([x,y])
-                if handedness == "Right":
+                if handedness == "Right" and len(RH)<42:
                     RH.extend([x,y])
             if handedness == "Left":
                 show_left(point_show)
