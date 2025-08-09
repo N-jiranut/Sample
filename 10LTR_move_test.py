@@ -16,7 +16,7 @@ model = load_model(f"ML-model/{name}/model.h5")
 with open(f"ML-model/{name}/text.txt", "r") as f:
     class_names = f.read().splitlines()
 
-def wait():
+def wait ():
     while True:
         ret, img = cap.read()
         img = cv2.flip(img, 1)
@@ -64,6 +64,7 @@ def black_canvas(FPS):
                                 LYM=NY
                             elif NY<LYL:
                                 LYL=NY
+                            LH.extend([x,y])
                         if handedness == "Right" and len(RH)<42:
                             DR=True
                             NX = round(x*600)
@@ -86,7 +87,10 @@ def black_canvas(FPS):
 
             if len(RH) <= 0:
                 RH = [0 for _ in range(42)]
-            row.extend(RH)   
+            row.extend(RH)  
+            if len(LH) <= 0:
+                LH = [0 for _ in range(42)]
+            row.extend(LH)  
 
             cv2.imshow("Real", img)        
             key = cv2.waitKey(1)

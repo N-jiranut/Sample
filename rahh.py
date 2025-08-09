@@ -1,10 +1,26 @@
 import cv2
-import numpy as np
 
-screen = np.zeros((480, 480, 3), dtype=np.uint8)
+cap1 = cv2.VideoCapture(0)
+cap2 = cv2.VideoCapture(1)
 
-cv2.rectangle(screen, (0,480), (10,470),(50,150,0), 2)
+name = ""
 
-cv2.imshow("test",screen)
+path = ""
 
-cv2.waitKey(0)
+save = False
+label = 0
+while True:
+    ret1, img1 = cap1.read()
+    ret2, img2 = cap2.read()
+
+    cv2.imshow("img1", img1)
+    cv2.imshow("img2", img2)
+
+    key = cv2.waitKey(1)
+    if key == ord("s"):
+        if save == True:
+            save = False
+        else:
+            save=True
+    if key == ord("q"):
+        break
