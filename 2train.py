@@ -5,11 +5,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
 
-date="M8-4-2025"
-name="LRmove"
+date="M8-11-2025"
+name="moving_hands"
 
 # Load your CSV
-df = pd.read_csv("data/LRmove.csv")
+df = pd.read_csv("data/Moving_hands.csv")
 
 # Split features and labels
 X = df.iloc[:, :-1].values
@@ -29,7 +29,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 
 early_stop = EarlyStopping(
     monitor='val_loss',
-    patience=10,
+    patience=30,
     restore_best_weights=True
 )
     # Dropout(0.3),
