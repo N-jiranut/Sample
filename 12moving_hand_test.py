@@ -3,8 +3,10 @@ import mediapipe as mp
 import pandas as pd
 import numpy as np
 from tensorflow.keras.models import load_model
+from sklearn.decomposition import PCA
 hands = mp.solutions.hands.Hands()
 pose = mp.solutions.pose.Pose()
+pca = PCA(n_components=100)
 pose_take = [0,11,12,13,14,15,16]
 
 name = "M8-11-2025-moving_hands"
@@ -89,6 +91,8 @@ while True:
     key = cv2.waitKey(1)
     if key == ord("s"):
         data = main_save()
+        
+        data = pca.fit_transform(data)
         print(len(data))
         # data.append(main_save())
 
