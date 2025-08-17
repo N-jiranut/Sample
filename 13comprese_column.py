@@ -7,8 +7,8 @@ from tensorflow.keras.utils import to_categorical
 from sklearn.decomposition import PCA
 import joblib
 
-date="M8-11-2025"
-name="moving_hands"
+date="M8-12-2025"
+name="moving_hands_try"
 
 # Load your CSV
 df = pd.read_csv("data/Moving_hands.csv")
@@ -34,7 +34,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 
 early_stop = EarlyStopping(
     monitor='val_loss',
-    patience=10,
+    patience=30,
     restore_best_weights=True
 )
     # Dropout(0.3),
@@ -51,6 +51,7 @@ model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accur
 history = model.fit(X_train, y_train, epochs=2000, batch_size=8, validation_data=(X_test, y_test), callbacks=[early_stop])
 # , callbacks=[early_stop]
 
+joblib.dump(pca, "pca.pkl")
 model.save(f"ML-model/{date}-{name}/model.h5")
 
 with open(f"ML-model/{date}-{name}/text.txt", "w") as f:
