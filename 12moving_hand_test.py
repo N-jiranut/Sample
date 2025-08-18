@@ -3,7 +3,6 @@ import mediapipe as mp
 import pandas as pd
 import numpy as np
 from tensorflow.keras.models import load_model
-from sklearn.decomposition import PCA
 hands = mp.solutions.hands.Hands()
 pose = mp.solutions.pose.Pose()
 pose_take = [0,11,12,13,14,15,16]
@@ -31,7 +30,7 @@ def main_save():
     perframe = math.floor(allframe/15)
     for woah in range(allframe):
         ret, frame = cap.read()
-        if not ret:
+        if not ret: 
             break
         if condition%perframe == 0 and con < 15:
             frame = cv2.resize(frame, (720, 480))
@@ -107,8 +106,8 @@ def main_save():
 #     if key == ord("q"):
 #         break
 
-cap = cv2.VideoCapture("./Main_video/tilted/why/WIN_20250808_17_44_12_Pro.mp4")
-# cap = cv2.VideoCapture("C:/Users/User/OneDrive/Pictures/ม้วนฟิล์ม/WIN_20250817_12_08_11_Pro.mp4")
+# cap = cv2.VideoCapture("./Main_video/tilted/sick/WIN_20250808_18_44_16_Pro.mp4")
+cap = cv2.VideoCapture("C:/Users/User/OneDrive/Pictures/ม้วนฟิล์ม/WIN_20250817_12_08_11_Pro.mp4")
 
 data = main_save()
 
