@@ -107,8 +107,8 @@ def main_save():
 #     if key == ord("q"):
 #         break
 
-# cap = cv2.VideoCapture("./Main_video/tilted/sick/WIN_20250808_18_44_16_Pro.mp4")
-cap = cv2.VideoCapture("C:/Users/User/OneDrive/Pictures/ม้วนฟิล์ม/WIN_20250817_12_08_11_Pro.mp4")
+cap = cv2.VideoCapture("./Main_video/tilted/why/WIN_20250808_17_44_12_Pro.mp4")
+# cap = cv2.VideoCapture("C:/Users/User/OneDrive/Pictures/ม้วนฟิล์ม/WIN_20250817_12_08_11_Pro.mp4")
 
 data = main_save()
 

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Flask + HTML Example</title>
+</head>
+<body>
+  <h1>Python + HTML Example</h1>
+
+  <form method="POST">
+    <!-- <input type="text" name="user_input" placeholder="Enter a number"> -->
+    <button type="submit">Submit</button>
+  </form>
+
+  {% if result is not none %}
+    <h2>Result: {{ result }}</h2>
+  {% endif %}
+
+  {% if error %}
+    <h2 style="color:red;">Error: {{ error }}</h2>
+  {% endif %}
+</body>
+</html>
