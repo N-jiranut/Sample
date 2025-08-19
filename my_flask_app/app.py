@@ -34,7 +34,7 @@ def my_algorithm():
         cv2.imshow("screen", img)
         cv2.imwrite(f"client_picture/img{n}.png", img)
         time.sleep(.05)
-        
+
 def forpredict():
     global path
     pose_take = [0,11,12,13,14,15,16]
