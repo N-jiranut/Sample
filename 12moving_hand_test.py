@@ -107,8 +107,8 @@ def main_save():
 #         break
 
 # cap = cv2.VideoCapture("./Main_video/tilted/sick/WIN_20250808_18_44_16_Pro.mp4")
-cap = cv2.VideoCapture("C:/Users/User/OneDrive/Pictures/ม้วนฟิล์ม/WIN_20250817_12_08_11_Pro.mp4")
-
+# cap = cv2.VideoCapture("C:/Users/User/OneDrive/Pictures/ม้วนฟิล์ม/WIN_20250817_12_08_11_Pro.mp4")
+cap = cv2.VideoCapture("C:/Users/Thinkpad/Pictures/Camera Roll/WIN_20250819_15_45_18_Pro.mp4")
 data = main_save()
 
 landmarks_np = np.array(data).reshape(1, -1)
