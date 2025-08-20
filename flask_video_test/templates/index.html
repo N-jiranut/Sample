@@ -5,6 +5,12 @@
 </head>
 <body>
     <h1>Live Webcam</h1>
-    <img src="{{ url_for('video') }}" width="640" height="480">
+    <img src="{{ url_for('video') }}" width="720" height="480">
+    <form method="POST">
+    <button type="submit" name="HI">Submit</button>
+    </form>
+    {% if result is not none %}
+    <h2>Result: {{ result }}</h2>
+    {% endif %}
 </body>
 </html>
