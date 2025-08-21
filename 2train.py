@@ -5,11 +5,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
 
-date="M8-17-2025"
-name="moving_hands"
+date="M8-21-2025"
+name="moving_hands_full"
 
 # Load your CSV
-df = pd.read_csv("data/Moving_hands2.csv")
+df = pd.read_csv("data/Moving_hands3.csv")
 
 # Split features and labels
 X = df.iloc[:, :-1].values
@@ -29,14 +29,14 @@ from tensorflow.keras.callbacks import EarlyStopping
 
 early_stop = EarlyStopping(
     monitor='val_loss',
-    patience=15,
+    patience=20,
     restore_best_weights=True
 )
 
 model = Sequential([
-    Dense(16, activation='relu', input_shape=(X.shape[1],)),
+    Dense(64, activation='relu', input_shape=(X.shape[1],)),
     Dropout(0.3),
-    Dense(8, activation='relu'),
+    Dense(32, activation='relu'),
     Dropout(0.3),
     Dense(y_categorical.shape[1], activation='softmax')
 ])
@@ -59,5 +59,5 @@ plt.xlabel("Epoch")
 plt.ylabel("Loss")
 plt.legend()
 plt.grid(True)
-plt.savefig("keras_loss_plot.png")
+plt.savefig(f"ML-model/{date}-{name}/keras_loss_plot.png")
 plt.show()

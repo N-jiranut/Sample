@@ -5,7 +5,7 @@ import mediapipe as mp
 import numpy as np
 hands = mp.solutions.hands.Hands()
 pose = mp.solutions.pose.Pose()
-name = "M8-17-2025-moving_hands"
+name = "M8-17-2025-moving_hands_full"
 model = load_model(f"ML-model/{name}/model.h5")
 with open(f"ML-model/{name}/text.txt", "r") as f:
     class_names = f.read().splitlines()
@@ -118,7 +118,7 @@ def forpredict():
                 row.extend(BO)
                 con += 1
 
-            cv2.imshow("screen", cimg)
+            # cv2.imshow("screen", cimg)
         if cv2.waitKey(1) == ord('q'):
            break
         condition+=1
