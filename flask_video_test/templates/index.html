@@ -2,15 +2,18 @@
 <html>
 <head>
     <title>Webcam Stream</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <h1>Live Webcam</h1>
-    <img src="{{ url_for('video') }}" width="720" height="480">
-    <form method="POST">
-    <button type="submit" name="HI">Submit</button>
-    </form>
-    {% if result is not none %}
-    <h2>Result: {{ result }}</h2>
-    {% endif %}
+    <div class="container">
+        <img src="{{ url_for('video') }}" width="720" height="480">
+        <form method="POST">
+            <button type="submit" name="HI">Submit</button>
+        </form>
+        {% if result is not none %}
+        <h2>Result: {{ result }}</h2>
+        {% endif %}
+    </div>
 </body>
 </html>
