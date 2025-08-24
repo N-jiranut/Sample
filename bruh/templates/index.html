@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Partial Page Reload</title>
+</head>
+<body>
+
+    <h1>Your Notifications</h1>
+    <p>Notifications: <span id="notification-count">{{ initial_notifications }}</span></p>
+
+    <script>
+        function fetchNotifications() {
+            fetch('/notifications')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('notification-count').textContent = data.count;
+                })
+                .catch(error => console.error('Error fetching notifications:', error));
+        }
+
+        // Call the function once immediately, then every 5 seconds
+        fetchNotifications();
+        setInterval(fetchNotifications, 5000); 
+    </script>
+
+</body>
+</html>

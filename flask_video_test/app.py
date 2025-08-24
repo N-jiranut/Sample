@@ -5,6 +5,7 @@ import mediapipe as mp
 import numpy as np
 hands = mp.solutions.hands.Hands()
 pose = mp.solutions.pose.Pose()
+name = "M8-17-2025-moving_hands_full"
 name = "M8-21-2025-moving_hands_full"
 model = load_model(f"ML-model/{name}/model.h5")
 with open(f"ML-model/{name}/text.txt", "r") as f:
@@ -15,6 +16,8 @@ output = ""
 processing = False
 value = False
 npic = 0
+
+test = 0
 
 app = Flask(__name__)
 cap = cv2.VideoCapture(0)  # 0 = default webcam
@@ -36,7 +39,7 @@ def generate_frames():
                 forsave = frame
                 cv2.imwrite(f"client_picture/img{npic}.jpeg", forsave)
                 cv2.putText(frame, f"get:{npic}/200 pic", (0, 40), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 2, cv2.LINE_AA)
-                # output =f"get:{npic}/200"
+                # output = "collecting.."
                 npic+=1
 
 
@@ -68,7 +71,7 @@ def generate_frames():
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 def forpredict():
-    global path, processing
+    global path, processing, output
     processing = True
     pose_take = [0,11,12,13,14,15,16]
     picture = os.listdir(path)
@@ -137,21 +140,19 @@ def forpredict():
     print(pred[0][index])
     print(label)
     processing = False
-    return label
+    output = label
+    # return label
 
 @app.route('/', methods=["GET", "POST"])
 def index():
     global value, npic, output, processing
-    print(processing)
-    # output = None
     if request.method == "POST" and not processing:
         if value:
             value=False
-            output = forpredict()
+            forpredict()
         elif not value:
             npic = 0
             value=True
-            output = 'collecting..'
             fordel = os.listdir(path)
             for pic in fordel:
                 file_path = os.path.join(path, pic)
@@ -162,6 +163,11 @@ def index():
 def video():
     return Response(generate_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
+    
+@app.route('/laptop')
+def get_notifications():
+    return render_template('demo web interface.html')
+    
 
 if __name__ == "__main__":
     app.run(debug=True)
