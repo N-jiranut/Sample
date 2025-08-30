@@ -1,0 +1,5 @@
+epochs=152
+acc=0.9096
+loss=1.1537
+val_acc=0.7212
+val_loss=0.8241

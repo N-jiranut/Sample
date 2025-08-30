@@ -79,8 +79,8 @@ for posetype in onefloor:
         path2 = os.path.join(path, posetype)
         twofloor = os.listdir(path2)
         for poseclass in twofloor:
-            if poseclass == "thank_alot":
-                continue
+            # if poseclass == "thank_alot":
+            #     continue
             path3 = os.path.join(path2, poseclass)
             threefloor = os.listdir(path3)
             for video in threefloor:
@@ -94,6 +94,6 @@ for posetype in onefloor:
                 main_data.append(main_save(poseclass))
                 
 df = pd.DataFrame(main_data)
-df.to_csv("data/Moving_hands_remove(thank_alot).csv", mode='w', index=False, header=False)                 
+df.to_csv("data/Moving_hands-8-31-2025.csv", mode='w', index=False, header=False)                 
 cap.release()
 cv2.destroyAllWindows()

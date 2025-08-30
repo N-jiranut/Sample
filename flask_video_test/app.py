@@ -5,7 +5,6 @@ import mediapipe as mp
 import numpy as np
 hands = mp.solutions.hands.Hands()
 pose = mp.solutions.pose.Pose()
-name = "M8-17-2025-moving_hands_full"
 name = "M8-21-2025-moving_hands_full"
 model = load_model(f"ML-model/{name}/model.h5")
 with open(f"ML-model/{name}/text.txt", "r") as f:
