@@ -6,7 +6,7 @@ from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
 
 date="M8-31-2025"
-name="batch_size=4-neurons=[128,64]"
+name="batch_size=4-neurons=[128,64]-1"
 
 # Load your CSV
 df = pd.read_csv("data/Moving_hands-8-31-2025.csv")
