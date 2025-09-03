@@ -2,18 +2,27 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 from tensorflow.keras.utils import to_categorical
 
-date="M8-31-2025"
-name="batch_size=4-neurons=[128,64]-1"
+date="M9-3-2025"
+name="Uan"
 
 # Load your CSV
-df = pd.read_csv("data/Moving_hands-8-31-2025.csv")
+df = pd.read_csv("data/main100.csv")
 
 # Split features and labels
 X = df.iloc[:, :-1].values
-y = df.iloc[:, -1].values  
+# y = df.iloc[:, -1].values  
+y=[]
+for pose in range(99):
+    for _ in range(30):
+        y.append(pose)
+for _ in range(29):
+    y.append(100)
+
+# scaler = MinMaxScaler()
+# X = scaler.fit_transform(X)
 
 # Encode labels
 le = LabelEncoder()
