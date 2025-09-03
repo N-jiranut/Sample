@@ -1,12 +1,12 @@
 import pandas as pd
 import numpy as np
 from tensorflow.keras.models import load_model
-name = "M8-21-2025-moving_hands_full"
+name = "M8-31-2025-batch_size=4-neurons=[128,64]-1"
 model = load_model(f"ML-model/{name}/model.h5")
 with open(f"ML-model/{name}/text.txt", "r") as f:
     class_names = f.read().splitlines()
 predicted_classes = []
-df = pd.read_csv("data/Moving_hands3.csv")
+df = pd.read_csv("data/Moving_hands-8-31-2025.csv")
 X = df.iloc[:, :-1].values
 y = df.iloc[:, -1].values  
 predictions = model.predict(X)
