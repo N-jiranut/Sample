@@ -22,7 +22,6 @@ for i in range(99):
         y.append(i)
 for l in range(28):
     y.append(100)
-print(len(y))
 # Encode labels
 le = LabelEncoder()
 y_encoded = le.fit_transform(y)
@@ -47,3 +46,8 @@ tabnet_model.fit(
 y_pred_tabnet = tabnet_model.predict(X_test)
 acc_tabnet = accuracy_score(y_test, y_pred_tabnet)
 print(f"TabNet Test Accuracy: {acc_tabnet:.4f}")
+
+tabnet_model.save_model(f"ML-model/{date}-{name}/tabnet_model.zip")
+with open(f"ML-model/{date}-{name}/text.txt", "w") as f:
+    for label in le.classes_:
+        f.write(str(label) + "\n")
